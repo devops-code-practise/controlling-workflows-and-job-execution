@@ -75,6 +75,9 @@ jobs:
     uses: ./.github/workflows/reusable.yml
     with:
       artifact-name: dist-files
+      # ADDING SECRETS
+    secrets:
+      some-secret: ${{ secrets.some-secret }}
     # runs-on: ubuntu-latest
     # steps:
     #   - name: Get build artifacts

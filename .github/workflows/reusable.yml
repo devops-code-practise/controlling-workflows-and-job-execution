@@ -8,6 +8,9 @@ on:
         required: false
         default: dist
         type: string
+    # secrets:
+    #   some-secret:
+    #     required: true
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -16,6 +19,9 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.artifact-name }}
+      # USING SECRETS
+      # - name: Use the secret
+      #   run: echo "My secret token is ${{ secrets.some-secret }}"
       - name: List files
         run: ls
       - name: Output information
