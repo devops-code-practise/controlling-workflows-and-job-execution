@@ -8,9 +8,18 @@ jobs:
       matrix:
         node-version: [18, 19, 20]
         operating-system: [ubuntu-latest, windows-latest]
+        # reserved key
+        # - Allows us to add special combinations, whihc will not be mixed with other options or so
+        include:
+          - node-version: 17
+            operating-system: ubuntu-latest
+        # excluding combination
+        exclude:
+          - node-version: 19
+            perating-system: windows-latest
       #simply like a loop through all the values defined in the array.
-      # (Runs in parallel by default)
-      # (Will run for all combinations of the values in matrix)
+      # - (Runs in parallel by default)
+      # - (Will run for all combinations of the values in matrix)
     runs-on: ${{ matrix.operating-system }}
     steps:
       - name: Get code
