@@ -1,0 +1,24 @@
+name: Matrix Worflow
+on: push
+jobs:
+  build:
+    # adding matrix. Used in order to run the same job with different configurations
+    strategy:
+      matrix:
+        node-version: [18, 19, 20]
+        operating-system: [ubuntu-latest, windows-latest]
+      #simply like a loop through all the values defined in the array.
+      # (Runs in parallel by default)
+      # (Will run for all combinations of the values in matrix)
+    runs-on: ${{ matrix.operating-system }}
+    steps:
+      - name: Get code
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        run: npm ci
+      - name: Build project
+        run: npm run build
