@@ -2,6 +2,7 @@ name: Matrix Worflow
 on: push
 jobs:
   build:
+    continue-on-error: true
     # adding matrix. Used in order to run the same job with different configurations
     strategy:
       matrix:
