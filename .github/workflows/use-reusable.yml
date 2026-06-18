@@ -1,0 +1,100 @@
+name: Using Reusable Workflow
+on:
+  push:
+    branches:
+      - main
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v4
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - name: Lint code
+        run: npm run lint
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v4
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - name: Test code
+        id: run-tests
+        run: npm run test
+      - name: Upload test report
+        # if: ${{  }} (can omit this expression syntax with 'if')
+        # have 4 special condition functions for mananing the state of the previous step or job: failure,always,cancelled,success
+        if: failure() && steps.run-tests.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: test.json
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v4
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - name: Build website
+        id: build-website
+        run: npm run build
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-files
+          path: dist
+  # USING REUSABLE WORKFLOW
+  deploy:
+    needs: build
+    # could also add a path to a workflow in another repo
+    uses: ./.github/workflows/reusable.yml
+    # runs-on: ubuntu-latest
+    # steps:
+    #   - name: Get build artifacts
+    #     uses: actions/download-artifact@v4
+    #     with:
+    #       name: dist-files
+    #   - name: Output contents
+    #     run: ls
+    #   - name: Deploy
+    #     run: echo "Deploying..."
+  report:
+    needs: [lint, deploy]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output information
+        env:
+          # This maps the JSON safely to a string variable in memory
+          THE_CONTEXT: ${{ toJSON(github) }}
+        run: |
+          echo "Something went wrong"
+          echo "$THE_CONTEXT"
+        # run: |
+        #   echo "Something went wrong"
+        #   echo ${{ toJSON(github) }}
