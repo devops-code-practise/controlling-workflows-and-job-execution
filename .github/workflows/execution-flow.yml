@@ -37,7 +37,8 @@ jobs:
         run: npm run test
       - name: Upload test report
         # if: ${{  }} (can omit this expression syntax with 'if')
-        if: steps.run-tests.outcome == 'failure'
+        # have 4 special condition functions for mananing the state of the previous step or job: failure,always,cancelled,success
+        if: failure() && steps.run-tests.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: test-report
