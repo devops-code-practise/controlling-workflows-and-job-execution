@@ -73,6 +73,8 @@ jobs:
     needs: build
     # could also add a path to a workflow in another repo
     uses: ./.github/workflows/reusable.yml
+    with:
+      artifact-name: dist-files
     # runs-on: ubuntu-latest
     # steps:
     #   - name: Get build artifacts
